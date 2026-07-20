@@ -23,6 +23,7 @@ const TESTRAIL_API = `${TESTRAIL_BASE_URL}/index.php?/api/v2`;
 const USER_MAP = {
   778: 'pandimkp',
   896: 'achnna',
+  898: 'erinjem',
   1862: 'ayushvn',
   304: 'akashmao',
 };
@@ -122,10 +123,19 @@ async function getAuditData(from, to, projectId, testType) {
     'plans'
   );
 
-  // 2. Filter plans by test type (match ":TYPE:" in plan name)
+  // 2. Filter plans by test type (match various naming patterns)
   const ksPlans = plans.filter(p => {
     const name = (p.name || '').toLowerCase();
-    return name.includes(`:${typeFilter}:`);
+    if (typeFilter === 'ebat') {
+      // Match :ebat: or :e:bat: or :e-bat:
+      return name.includes(':ebat:') || name.includes(':e:bat:') || name.includes(':e-bat:');
+    } else if (typeFilter === 'bat') {
+      // Match :bat: but NOT :ebat: or :e:bat: or :ubat:
+      return name.includes(':bat:') && !name.includes('ebat') && !name.includes(':e:bat:') && !name.includes('ubat');
+    } else {
+      // For regression, sanity, ubat - simple match
+      return name.includes(`:${typeFilter}:`);
+    }
   });
 
   console.log(`[Audit] ${plans.length} total plans, ${ksPlans.length} matching "${typeFilter}" filter`);
