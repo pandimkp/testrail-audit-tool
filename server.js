@@ -21,8 +21,10 @@ const TESTRAIL_API = `${TESTRAIL_BASE_URL}/index.php?/api/v2`;
 
 // Known user ID -> name mapping
 const USER_MAP = {
+  778: 'pandimkp',
   896: 'achnna',
-  778: 'maniikk',
+  1862: 'ayushvn',
+  304: 'akashmao',
 };
 
 // Test type filters (matched against plan name)
@@ -64,7 +66,7 @@ function getUserName(userId) {
   return `User_${userId}`;
 }
 
-// Map priority ID to name
+// Map priority ID to name (kept for reference)
 function getPriorityName(priorityId) {
   const priorities = { 1: 'P4', 2: 'P3', 3: 'P2', 4: 'P1', 5: 'P0' };
   return priorities[priorityId] || `P${priorityId}`;
@@ -108,6 +110,11 @@ async function getAuditData(from, to, projectId, testType) {
   const typeFilter = (testType || 'ebat').toLowerCase();
 
   console.log(`[Audit] Fetching from ${from} to ${to}, project=${pid}, type=${typeFilter}`);
+
+  // Use today's date for audit_date and month
+  const now = new Date();
+  const today = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear().toString().slice(-2)}`;
+  const todayMonth = getMonthName(now.toISOString().split('T')[0]);
 
   // 1. Get plans in date range
   const plans = await fetchPaginated(
@@ -190,12 +197,11 @@ async function getAuditData(from, to, projectId, testType) {
         const test = tests.find(t => t.id === parseInt(testId));
         if (!test) continue;
 
-        const userId = result.created_by || test.assignedto_id;
+        const userId = test.assignedto_id || result.created_by;
         seenUserIds.add(userId);
 
         auditRows.push({
           da_user_id: getUserName(userId),
-          priority: getPriorityName(test.priority_id),
           test_case_id: `T${test.case_id}`,
           test_plan_name: planName,
           team: teamName,
@@ -204,12 +210,12 @@ async function getAuditData(from, to, projectId, testType) {
           ambiguity_2a: 'Yes',
           ambiguity_2b: 'Yes',
           execution_check: 'OK',
-          comments: result.comment || 'Passed the TC with proper Build number',
-          audit_date: from,
+          comments: 'Passed the TC with proper Build number',
+          audit_date: today,
           audited_by: 'pandimkp',
           dispute: 'NO',
           da_manager: 'priyadp',
-          month: getMonthName(from),
+          month: todayMonth,
           audit_type: 'Ambiguity',
           test_id: test.id,
           run_id: run.id,
@@ -264,7 +270,6 @@ app.get('/api/export', async (req, res) => {
 
     sheet.columns = [
       { header: 'DA User ID', key: 'da_user_id', width: 15 },
-      { header: 'Priority', key: 'priority', width: 10 },
       { header: 'Test case id (if applicable )', key: 'test_case_id', width: 18 },
       { header: 'Test plan name (if applicable )', key: 'test_plan_name', width: 45 },
       { header: 'Team', key: 'team', width: 18 },

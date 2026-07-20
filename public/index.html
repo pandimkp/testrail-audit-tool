@@ -365,7 +365,6 @@
           <thead>
             <tr>
               <th>DA User ID</th>
-              <th>Priority</th>
               <th>Test case id (if applicable )</th>
               <th>Test plan name (if applicable )</th>
               <th>Team</th>
@@ -562,7 +561,6 @@
       tbody.innerHTML = rows.map(row => `
         <tr>
           <td>${escapeHtml(row.da_user_id)}</td>
-          <td>${escapeHtml(row.priority)}</td>
           <td><a href="${row.test_url || '#'}" target="_blank" rel="noopener">${escapeHtml(row.test_case_id)}</a></td>
           <td>${escapeHtml(row.test_plan_name)}</td>
           <td>${escapeHtml(row.team)}</td>
@@ -570,9 +568,9 @@
           <td>${row.ambiguity_1b}</td>
           <td>${row.ambiguity_2a}</td>
           <td>${row.ambiguity_2b}</td>
-          <td class="${row.execution_check === 'OK' ? 'status-ok' : 'status-nok'}">${row.execution_check}</td>
+          <td class="status-ok">${row.execution_check}</td>
           <td>${escapeHtml(row.comments)}</td>
-          <td>${formatAuditDate(row.audit_date)}</td>
+          <td>${escapeHtml(row.audit_date)}</td>
           <td>${escapeHtml(row.audited_by)}</td>
           <td>${row.dispute}</td>
           <td>${escapeHtml(row.da_manager)}</td>
