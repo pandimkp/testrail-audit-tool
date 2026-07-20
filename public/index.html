@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestRail Audit Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #232946 0%, #395b7a 100%);
+      color: white;
+      padding: 24px 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .date-picker-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 28px;
+    }
+
+    .date-picker-card h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #232946;
+    }
+
+    .date-form {
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .date-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .date-field label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .date-field input {
+      padding: 10px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .date-field input:focus {
+      border-color: #395b7a;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      background: #232946;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background: #395b7a;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .btn-export {
+      background: #2e7d32;
+    }
+
+    .btn-export:hover {
+      background: #388e3c;
+    }
+
+    .loading {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      color: #555;
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e0e0e0;
+      border-top: 3px solid #232946;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-msg {
+      display: none;
+      background: #fff0f0;
+      border: 1px solid #ffcdd2;
+      color: #c62828;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .error-msg.active {
+      display: block;
+    }
+
+    .results {
+      display: none;
+    }
+
+    .results.active {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .results-header h3 {
+      font-size: 18px;
+      color: #232946;
+    }
+
+    .results-info {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    .summary-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #232946;
+    }
+
+    .summary-card .label {
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    .summary-card.passed .value { color: #2e7d32; }
+    .summary-card.failed .value { color: #c62828; }
+
+    .audit-table-wrapper {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow-x: auto;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .audit-table thead {
+      background: #d9e2f3;
+    }
+
+    .audit-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      color: #232946;
+      border: 1px solid #c4d4e8;
+      font-size: 11px;
+    }
+
+    .audit-table td {
+      padding: 8px 12px;
+      border: 1px solid #e8e8e8;
+      color: #333;
+    }
+
+    .audit-table tr:nth-child(even) {
+      background: #f9fbff;
+    }
+
+    .audit-table tr:hover td {
+      background: #eef3ff;
+    }
+
+    .audit-table td a {
+      color: #1565c0;
+      text-decoration: none;
+    }
+
+    .audit-table td a:hover {
+      text-decoration: underline;
+    }
+
+    .status-ok {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .status-nok {
+      color: #c62828;
+      font-weight: 600;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .date-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .header {
+        padding: 18px 20px;
+      }
+
+      .container {
+        padding: 16px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TestRail Audit Tool</h1>
+    <p>Project #59 - Select a date range to generate audit report</p>
+  </div>
+
+  <div class="container">
+    <!-- Date Picker Section -->
+    <div class="date-picker-card">
+      <h2>Select Date Range & Filters</h2>
+      <form class="date-form" id="auditForm">
+        <div class="date-field">
+          <label for="fromDate">From Date</label>
+          <input type="date" id="fromDate" required>
+        </div>
+        <div class="date-field">
+          <label for="toDate">To Date</label>
+          <input type="date" id="toDate" required>
+        </div>
+        <div class="date-field">
+          <label for="teamSelect">Team (Project)</label>
+          <select id="teamSelect" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;">
+            <option value="59">Kepler Studio</option>
+          </select>
+        </div>
+        <div class="date-field">
+          <label for="testTypeSelect">Test Type</label>
+          <select id="testTypeSelect" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;">
+            <option value="ebat">EBAT</option>
+            <option value="regression">Regression</option>
+            <option value="sanity">Sanity</option>
+            <option value="ubat">UBat</option>
+            <option value="bat">Bat</option>
+          </select>
+        </div>
+        <button type="submit" class="btn" id="fetchBtn">Generate Report</button>
+        <button type="button" class="btn btn-export" id="exportBtn" style="display:none;">Export to Excel</button>
+      </form>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span id="loadingText">Fetching audit data from TestRail...</span>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results" id="results">
+      <!-- Summary -->
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <!-- Results Header -->
+      <div class="results-header">
+        <h3>Audit Report</h3>
+        <span class="results-info" id="resultsInfo"></span>
+      </div>
+
+      <!-- Audit Table -->
+      <div class="audit-table-wrapper">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>DA User ID</th>
+              <th>Priority</th>
+              <th>Test case id (if applicable )</th>
+              <th>Test plan name (if applicable )</th>
+              <th>Team</th>
+              <th>Ambiguity-1A</th>
+              <th>Ambiguity-1B</th>
+              <th>Ambiguity-2A</th>
+              <th>Ambiguity-2B</th>
+              <th>Execution Check</th>
+              <th>Comments(provide detailed description)</th>
+              <th>Audit date</th>
+              <th>Auditted by</th>
+              <th>Dispute</th>
+              <th>DA Manager</th>
+              <th>Month</th>
+              <th>Audit type</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+        <div class="no-data" id="noDataMsg" style="display:none;">No audit data found for this date range.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set default dates (today and 7 days ago)
+    const today = new Date();
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 7);
+
+    document.getElementById('toDate').value = formatDate(today);
+    document.getElementById('fromDate').value = formatDate(weekAgo);
+
+    let currentFrom = '';
+    let currentTo = '';
+    let currentProject = '59';
+    let currentTestType = 'ebat';
+
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    // Load projects (teams) into dropdown
+    async function loadProjects() {
+      try {
+        const response = await fetch('/api/projects');
+        const projects = await response.json();
+        const select = document.getElementById('teamSelect');
+        select.innerHTML = '';
+        projects.forEach(p => {
+          const option = document.createElement('option');
+          option.value = p.id;
+          option.textContent = p.name;
+          if (p.id === 59) option.selected = true;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Failed to load projects:', err);
+      }
+    }
+
+    loadProjects();
+
+    function formatAuditDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const month = d.getMonth() + 1;
+      const day = d.getDate();
+      const year = d.getFullYear().toString().slice(-2);
+      return `${month}/${day}/${year}`;
+    }
+
+    // Form submission
+    document.getElementById('auditForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const from = document.getElementById('fromDate').value;
+      const to = document.getElementById('toDate').value;
+
+      if (!from || !to) {
+        showError('Please select both from and to dates.');
+        return;
+      }
+
+      if (new Date(from) > new Date(to)) {
+        showError('From date must be before To date.');
+        return;
+      }
+
+      currentFrom = from;
+      currentTo = to;
+      currentProject = document.getElementById('teamSelect').value;
+      currentTestType = document.getElementById('testTypeSelect').value;
+      await fetchAuditData(from, to, currentProject, currentTestType);
+    });
+
+    // Export button
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      if (currentFrom && currentTo) {
+        window.location.href = `/api/export?from=${currentFrom}&to=${currentTo}&project=${currentProject}&testType=${currentTestType}`;
+      }
+    });
+
+    async function fetchAuditData(from, to, project, testType) {
+      const loading = document.getElementById('loading');
+      const errorMsg = document.getElementById('errorMsg');
+      const results = document.getElementById('results');
+      const fetchBtn = document.getElementById('fetchBtn');
+      const exportBtn = document.getElementById('exportBtn');
+
+      // Reset state
+      loading.classList.add('active');
+      errorMsg.classList.remove('active');
+      results.classList.remove('active');
+      exportBtn.style.display = 'none';
+      fetchBtn.disabled = true;
+
+      try {
+        const response = await fetch(`/api/audit?from=${from}&to=${to}&project=${project}&testType=${testType}`);
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to fetch audit data');
+        }
+
+        const data = await response.json();
+        renderResults(data);
+        results.classList.add('active');
+        exportBtn.style.display = 'inline-block';
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        loading.classList.remove('active');
+        fetchBtn.disabled = false;
+      }
+    }
+
+    function showError(msg) {
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('active');
+    }
+
+    function renderResults(data) {
+      const { rows, total_rows, total_runs, total_plans } = data;
+
+      // Count statuses
+      let okCount = 0;
+      let nokCount = 0;
+      rows.forEach(row => {
+        if (row.execution_check === 'OK') okCount++;
+        else nokCount++;
+      });
+
+      // Render summary
+      const summaryGrid = document.getElementById('summaryGrid');
+      summaryGrid.innerHTML = `
+        <div class="summary-card">
+          <div class="value">${total_rows}</div>
+          <div class="label">Total Audit Rows</div>
+        </div>
+        <div class="summary-card">
+          <div class="value">${total_runs}</div>
+          <div class="label">Test Runs</div>
+        </div>
+        <div class="summary-card">
+          <div class="value">${total_plans}</div>
+          <div class="label">Test Plans</div>
+        </div>
+        <div class="summary-card passed">
+          <div class="value">${okCount}</div>
+          <div class="label">Execution OK</div>
+        </div>
+        <div class="summary-card failed">
+          <div class="value">${nokCount}</div>
+          <div class="label">Execution NOK</div>
+        </div>
+      `;
+
+      // Results info
+      document.getElementById('resultsInfo').textContent = `${total_rows} records found`;
+
+      // Render table
+      const tbody = document.getElementById('auditTableBody');
+      const noDataMsg = document.getElementById('noDataMsg');
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '';
+        noDataMsg.style.display = 'block';
+        return;
+      }
+
+      noDataMsg.style.display = 'none';
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${escapeHtml(row.da_user_id)}</td>
+          <td>${escapeHtml(row.priority)}</td>
+          <td><a href="${row.test_url || '#'}" target="_blank" rel="noopener">${escapeHtml(row.test_case_id)}</a></td>
+          <td>${escapeHtml(row.test_plan_name)}</td>
+          <td>${escapeHtml(row.team)}</td>
+          <td>${row.ambiguity_1a}</td>
+          <td>${row.ambiguity_1b}</td>
+          <td>${row.ambiguity_2a}</td>
+          <td>${row.ambiguity_2b}</td>
+          <td class="${row.execution_check === 'OK' ? 'status-ok' : 'status-nok'}">${row.execution_check}</td>
+          <td>${escapeHtml(row.comments)}</td>
+          <td>${formatAuditDate(row.audit_date)}</td>
+          <td>${escapeHtml(row.audited_by)}</td>
+          <td>${row.dispute}</td>
+          <td>${escapeHtml(row.da_manager)}</td>
+          <td>${escapeHtml(row.month)}</td>
+          <td>${escapeHtml(row.audit_type)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

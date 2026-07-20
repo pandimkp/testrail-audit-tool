@@ -1,0 +1,17 @@
+{
+  "name": "testrail-audit-tool",
+  "version": "1.0.0",
+  "description": "TestRail Audit Report Tool for team",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --max-old-space-size=512 server.js",
+    "dev": "node --max-old-space-size=512 server.js"
+  },
+  "dependencies": {
+    "express": "4.18.2",
+    "dotenv": "16.3.1",
+    "node-fetch": "2.7.0",
+    "cors": "2.8.5",
+    "exceljs": "4.4.0"
+  }
+}
