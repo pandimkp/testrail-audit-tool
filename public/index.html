@@ -4,393 +4,498 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TestRail Audit Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
       min-height: 100vh;
     }
 
+    /* Header */
     .header {
-      background: linear-gradient(135deg, #232946 0%, #395b7a 100%);
-      color: white;
-      padding: 24px 40px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .header p {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-top: 4px;
-    }
-
-    .container {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 32px 24px;
-    }
-
-    .date-picker-card {
       background: white;
-      border-radius: 12px;
-      padding: 28px 32px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      margin-bottom: 28px;
-    }
-
-    .date-picker-card h2 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: #232946;
-    }
-
-    .date-form {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 32px;
       display: flex;
-      align-items: flex-end;
-      gap: 20px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .date-field {
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+
+    .header-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Filter Card */
+    .filter-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 24px;
+    }
+
+    .filter-card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-card h2::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: #3b82f6;
+      border-radius: 2px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+
+    .field {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .date-field label {
-      font-size: 13px;
+    .field label {
+      font-size: 12px;
       font-weight: 500;
-      color: #555;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .date-field input {
+    .field input,
+    .field select {
       padding: 10px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
       font-size: 14px;
+      font-family: inherit;
+      color: #1e293b;
+      background: #f8fafc;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
-    .date-field input:focus {
-      border-color: #395b7a;
+    .field input:focus,
+    .field select:focus {
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      align-items: end;
     }
 
     .btn {
-      padding: 10px 24px;
-      background: #232946;
-      color: white;
+      padding: 10px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 500;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
-    .btn:hover {
-      background: #395b7a;
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
     }
 
-    .btn:active {
-      transform: scale(0.97);
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3);
     }
 
-    .btn:disabled {
-      background: #aaa;
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      transform: none;
+      box-shadow: none;
       cursor: not-allowed;
     }
 
-    .btn-export {
-      background: #2e7d32;
+    .btn-success {
+      background: #10b981;
+      color: white;
     }
 
-    .btn-export:hover {
-      background: #388e3c;
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(5,150,105,0.3);
     }
 
+    /* Loading */
     .loading {
       display: none;
       align-items: center;
       gap: 12px;
-      padding: 20px;
-      color: #555;
-    }
-
-    .loading.active {
-      display: flex;
-    }
-
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid #e0e0e0;
-      border-top: 3px solid #232946;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-msg {
-      display: none;
-      background: #fff0f0;
-      border: 1px solid #ffcdd2;
-      color: #c62828;
-      padding: 14px 18px;
-      border-radius: 8px;
-      margin-top: 16px;
+      padding: 16px 0;
+      color: #64748b;
       font-size: 14px;
     }
 
-    .error-msg.active {
-      display: block;
+    .loading.active { display: flex; }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid #e2e8f0;
+      border-top: 2.5px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
     }
 
-    .results {
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-msg {
       display: none;
-    }
-
-    .results.active {
-      display: block;
-    }
-
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .results-header h3 {
-      font-size: 18px;
-      color: #232946;
-    }
-
-    .results-info {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 14px;
       font-size: 13px;
-      color: #666;
+      font-weight: 500;
     }
 
-    .summary-grid {
+    .error-msg.active { display: block; }
+
+    /* Results */
+    .results { display: none; }
+    .results.active { display: block; }
+
+    /* Stats Grid */
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
     }
 
-    .summary-card {
+    .stat-card {
       background: white;
-      border-radius: 10px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      text-align: center;
+      border-radius: 14px;
+      padding: 18px 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
-    .summary-card .value {
+    .stat-card .stat-value {
       font-size: 28px;
       font-weight: 700;
-      color: #232946;
+      color: #0f172a;
+      line-height: 1;
     }
 
-    .summary-card .label {
+    .stat-card .stat-label {
       font-size: 12px;
-      color: #777;
-      margin-top: 4px;
+      color: #64748b;
+      margin-top: 6px;
+      font-weight: 500;
     }
 
-    .summary-card.passed .value { color: #2e7d32; }
-    .summary-card.failed .value { color: #c62828; }
+    .stat-card.blue .stat-value { color: #3b82f6; }
+    .stat-card.green .stat-value { color: #10b981; }
+    .stat-card.purple .stat-value { color: #8b5cf6; }
 
-    .audit-table-wrapper {
+    /* Table Section */
+    .table-section {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .table-header .badge {
+      background: #eff6ff;
+      color: #3b82f6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .table-wrapper {
       overflow-x: auto;
     }
 
     .audit-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
-      white-space: nowrap;
+      font-size: 13px;
     }
 
     .audit-table thead {
-      background: #d9e2f3;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .audit-table th {
       text-align: left;
-      padding: 10px 12px;
+      padding: 12px 16px;
       font-weight: 600;
-      color: #232946;
-      border: 1px solid #c4d4e8;
+      color: #475569;
       font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
     }
 
     .audit-table td {
-      padding: 8px 12px;
-      border: 1px solid #e8e8e8;
-      color: #333;
+      padding: 11px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      white-space: nowrap;
     }
 
-    .audit-table tr:nth-child(even) {
-      background: #f9fbff;
+    .audit-table tbody tr:hover td {
+      background: #f8fafc;
     }
 
-    .audit-table tr:hover td {
-      background: #eef3ff;
+    .audit-table tbody tr:last-child td {
+      border-bottom: none;
     }
 
     .audit-table td a {
-      color: #1565c0;
+      color: #3b82f6;
       text-decoration: none;
+      font-weight: 500;
     }
 
     .audit-table td a:hover {
       text-decoration: underline;
     }
 
-    .status-ok {
-      color: #2e7d32;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 600;
     }
 
-    .status-nok {
-      color: #c62828;
-      font-weight: 600;
+    .chip-ok {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .chip-yes {
+      background: #eff6ff;
+      color: #3b82f6;
     }
 
     .no-data {
       text-align: center;
-      padding: 40px;
-      color: #888;
+      padding: 48px 24px;
+      color: #94a3b8;
       font-size: 14px;
     }
 
+    .no-data svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      .date-form {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .header {
-        padding: 18px 20px;
-      }
-
-      .container {
-        padding: 16px 12px;
-      }
+      .container { padding: 16px; }
+      .filter-grid { grid-template-columns: 1fr 1fr; }
+      .header { padding: 14px 16px; }
+      .btn-group { flex-direction: column; width: 100%; }
+      .btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
-    <h1>TestRail Audit Tool</h1>
-    <p>Project #59 - Select a date range to generate audit report</p>
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>TestRail Audit Tool</h1>
+      <p>Generate audit reports from TestRail test execution data</p>
+    </div>
   </div>
 
   <div class="container">
-    <!-- Date Picker Section -->
-    <div class="date-picker-card">
-      <h2>Select Date Range & Filters</h2>
-      <form class="date-form" id="auditForm">
-        <div class="date-field">
-          <label for="fromDate">From Date</label>
-          <input type="date" id="fromDate" required>
+    <!-- Filters -->
+    <div class="filter-card">
+      <h2>Filters</h2>
+      <form id="auditForm">
+        <div class="filter-grid">
+          <div class="field">
+            <label>From Date</label>
+            <input type="date" id="fromDate" required>
+          </div>
+          <div class="field">
+            <label>To Date</label>
+            <input type="date" id="toDate" required>
+          </div>
+          <div class="field">
+            <label>Team (Project)</label>
+            <select id="teamSelect">
+              <option value="59">Kepler Studio</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Test Type</label>
+            <select id="testTypeSelect">
+              <option value="ebat">EBAT</option>
+              <option value="regression">Regression</option>
+              <option value="sanity">Sanity</option>
+              <option value="ubat">UBat</option>
+              <option value="bat">Bat</option>
+            </select>
+          </div>
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary" id="fetchBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Generate
+            </button>
+            <button type="button" class="btn btn-success" id="exportBtn" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Export Excel
+            </button>
+          </div>
         </div>
-        <div class="date-field">
-          <label for="toDate">To Date</label>
-          <input type="date" id="toDate" required>
-        </div>
-        <div class="date-field">
-          <label for="teamSelect">Team (Project)</label>
-          <select id="teamSelect" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;">
-            <option value="59">Kepler Studio</option>
-          </select>
-        </div>
-        <div class="date-field">
-          <label for="testTypeSelect">Test Type</label>
-          <select id="testTypeSelect" style="padding:10px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;">
-            <option value="ebat">EBAT</option>
-            <option value="regression">Regression</option>
-            <option value="sanity">Sanity</option>
-            <option value="ubat">UBat</option>
-            <option value="bat">Bat</option>
-          </select>
-        </div>
-        <button type="submit" class="btn" id="fetchBtn">Generate Report</button>
-        <button type="button" class="btn btn-export" id="exportBtn" style="display:none;">Export to Excel</button>
       </form>
 
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <span id="loadingText">Fetching audit data from TestRail...</span>
+        <span>Fetching audit data from TestRail...</span>
       </div>
 
       <div class="error-msg" id="errorMsg"></div>
     </div>
 
-    <!-- Results Section -->
+    <!-- Results -->
     <div class="results" id="results">
-      <!-- Summary -->
-      <div class="summary-grid" id="summaryGrid"></div>
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid"></div>
 
-      <!-- Results Header -->
-      <div class="results-header">
-        <h3>Audit Report</h3>
-        <span class="results-info" id="resultsInfo"></span>
-      </div>
-
-      <!-- Audit Table -->
-      <div class="audit-table-wrapper">
-        <table class="audit-table">
-          <thead>
-            <tr>
-              <th>DA User ID</th>
-              <th>Test case id (if applicable )</th>
-              <th>Test plan name (if applicable )</th>
-              <th>Team</th>
-              <th>Ambiguity-1A</th>
-              <th>Ambiguity-1B</th>
-              <th>Ambiguity-2A</th>
-              <th>Ambiguity-2B</th>
-              <th>Execution Check</th>
-              <th>Comments(provide detailed description)</th>
-              <th>Audit date</th>
-              <th>Auditted by</th>
-              <th>Dispute</th>
-              <th>DA Manager</th>
-              <th>Month</th>
-              <th>Audit type</th>
-            </tr>
-          </thead>
-          <tbody id="auditTableBody"></tbody>
-        </table>
-        <div class="no-data" id="noDataMsg" style="display:none;">No audit data found for this date range.</div>
+      <!-- Table -->
+      <div class="table-section">
+        <div class="table-header">
+          <h3>Audit Report</h3>
+          <span class="badge" id="recordCount">0 records</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>DA User ID</th>
+                <th>Test Case ID</th>
+                <th>Test Plan Name</th>
+                <th>Team</th>
+                <th>Ambiguity-1A</th>
+                <th>Ambiguity-1B</th>
+                <th>Ambiguity-2A</th>
+                <th>Ambiguity-2B</th>
+                <th>Execution Check</th>
+                <th>Comments</th>
+                <th>Audit Date</th>
+                <th>Audited By</th>
+                <th>Dispute</th>
+                <th>DA Manager</th>
+                <th>Month</th>
+                <th>Audit Type</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody"></tbody>
+          </table>
+          <div class="no-data" id="noDataMsg" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p>No audit data found for this date range.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Set default dates (today and 7 days ago)
     const today = new Date();
     const weekAgo = new Date(today);
     weekAgo.setDate(today.getDate() - 7);
@@ -407,7 +512,7 @@
       return date.toISOString().split('T')[0];
     }
 
-    // Load projects (teams) into dropdown
+    // Load projects
     async function loadProjects() {
       try {
         const response = await fetch('/api/projects');
@@ -428,31 +533,14 @@
 
     loadProjects();
 
-    function formatAuditDate(dateStr) {
-      if (!dateStr) return '';
-      const d = new Date(dateStr);
-      const month = d.getMonth() + 1;
-      const day = d.getDate();
-      const year = d.getFullYear().toString().slice(-2);
-      return `${month}/${day}/${year}`;
-    }
-
     // Form submission
     document.getElementById('auditForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const from = document.getElementById('fromDate').value;
       const to = document.getElementById('toDate').value;
 
-      if (!from || !to) {
-        showError('Please select both from and to dates.');
-        return;
-      }
-
-      if (new Date(from) > new Date(to)) {
-        showError('From date must be before To date.');
-        return;
-      }
+      if (!from || !to) { showError('Please select both dates.'); return; }
+      if (new Date(from) > new Date(to)) { showError('From date must be before To date.'); return; }
 
       currentFrom = from;
       currentTo = to;
@@ -461,7 +549,7 @@
       await fetchAuditData(from, to, currentProject, currentTestType);
     });
 
-    // Export button
+    // Export
     document.getElementById('exportBtn').addEventListener('click', () => {
       if (currentFrom && currentTo) {
         window.location.href = `/api/export?from=${currentFrom}&to=${currentTo}&project=${currentProject}&testType=${currentTestType}`;
@@ -475,7 +563,6 @@
       const fetchBtn = document.getElementById('fetchBtn');
       const exportBtn = document.getElementById('exportBtn');
 
-      // Reset state
       loading.classList.add('active');
       errorMsg.classList.remove('active');
       results.classList.remove('active');
@@ -484,16 +571,14 @@
 
       try {
         const response = await fetch(`/api/audit?from=${from}&to=${to}&project=${project}&testType=${testType}`);
-
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.error || 'Failed to fetch audit data');
         }
-
         const data = await response.json();
         renderResults(data);
         results.classList.add('active');
-        exportBtn.style.display = 'inline-block';
+        exportBtn.style.display = 'inline-flex';
       } catch (err) {
         showError(err.message);
       } finally {
@@ -503,51 +588,38 @@
     }
 
     function showError(msg) {
-      const errorMsg = document.getElementById('errorMsg');
-      errorMsg.textContent = msg;
-      errorMsg.classList.add('active');
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('active');
     }
 
     function renderResults(data) {
       const { rows, total_rows, total_runs, total_plans } = data;
 
-      // Count statuses
-      let okCount = 0;
-      let nokCount = 0;
-      rows.forEach(row => {
-        if (row.execution_check === 'OK') okCount++;
-        else nokCount++;
-      });
-
-      // Render summary
-      const summaryGrid = document.getElementById('summaryGrid');
-      summaryGrid.innerHTML = `
-        <div class="summary-card">
-          <div class="value">${total_rows}</div>
-          <div class="label">Total Audit Rows</div>
+      // Stats
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card blue">
+          <div class="stat-value">${total_rows}</div>
+          <div class="stat-label">Total Audit Rows</div>
         </div>
-        <div class="summary-card">
-          <div class="value">${total_runs}</div>
-          <div class="label">Test Runs</div>
+        <div class="stat-card purple">
+          <div class="stat-value">${total_plans}</div>
+          <div class="stat-label">Test Plans</div>
         </div>
-        <div class="summary-card">
-          <div class="value">${total_plans}</div>
-          <div class="label">Test Plans</div>
+        <div class="stat-card">
+          <div class="stat-value">${total_runs}</div>
+          <div class="stat-label">Test Runs</div>
         </div>
-        <div class="summary-card passed">
-          <div class="value">${okCount}</div>
-          <div class="label">Execution OK</div>
-        </div>
-        <div class="summary-card failed">
-          <div class="value">${nokCount}</div>
-          <div class="label">Execution NOK</div>
+        <div class="stat-card green">
+          <div class="stat-value">${total_rows}</div>
+          <div class="stat-label">Passed (OK)</div>
         </div>
       `;
 
-      // Results info
-      document.getElementById('resultsInfo').textContent = `${total_rows} records found`;
+      // Record count badge
+      document.getElementById('recordCount').textContent = `${total_rows} records`;
 
-      // Render table
+      // Table
       const tbody = document.getElementById('auditTableBody');
       const noDataMsg = document.getElementById('noDataMsg');
 
@@ -560,27 +632,27 @@
       noDataMsg.style.display = 'none';
       tbody.innerHTML = rows.map(row => `
         <tr>
-          <td>${escapeHtml(row.da_user_id)}</td>
-          <td><a href="${row.test_url || '#'}" target="_blank" rel="noopener">${escapeHtml(row.test_case_id)}</a></td>
-          <td>${escapeHtml(row.test_plan_name)}</td>
-          <td>${escapeHtml(row.team)}</td>
-          <td>${row.ambiguity_1a}</td>
-          <td>${row.ambiguity_1b}</td>
-          <td>${row.ambiguity_2a}</td>
-          <td>${row.ambiguity_2b}</td>
-          <td class="status-ok">${row.execution_check}</td>
-          <td>${escapeHtml(row.comments)}</td>
-          <td>${escapeHtml(row.audit_date)}</td>
-          <td>${escapeHtml(row.audited_by)}</td>
+          <td><strong>${esc(row.da_user_id)}</strong></td>
+          <td><a href="${row.test_url || '#'}" target="_blank">${esc(row.test_case_id)}</a></td>
+          <td>${esc(row.test_plan_name)}</td>
+          <td>${esc(row.team)}</td>
+          <td><span class="chip chip-yes">${row.ambiguity_1a}</span></td>
+          <td><span class="chip chip-yes">${row.ambiguity_1b}</span></td>
+          <td><span class="chip chip-yes">${row.ambiguity_2a}</span></td>
+          <td><span class="chip chip-yes">${row.ambiguity_2b}</span></td>
+          <td><span class="chip chip-ok">${row.execution_check}</span></td>
+          <td>${esc(row.comments)}</td>
+          <td>${esc(row.audit_date)}</td>
+          <td>${esc(row.audited_by)}</td>
           <td>${row.dispute}</td>
-          <td>${escapeHtml(row.da_manager)}</td>
-          <td>${escapeHtml(row.month)}</td>
-          <td>${escapeHtml(row.audit_type)}</td>
+          <td>${esc(row.da_manager)}</td>
+          <td>${esc(row.month)}</td>
+          <td>${esc(row.audit_type)}</td>
         </tr>
       `).join('');
     }
 
-    function escapeHtml(text) {
+    function esc(text) {
       if (!text) return '';
       const div = document.createElement('div');
       div.textContent = text;
